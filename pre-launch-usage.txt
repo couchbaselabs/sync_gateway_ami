@@ -1,0 +1,82 @@
+= Usage Instructions
+
+== 5 Minute AMI Test Drive
+
+After launching an EC2 instance, you may be interested in test driving
+your new database node.  The steps are easy.  Below, HOST is the
+DNS or IP address of your newly launched EC2 instance.
+
+First, please log into your new server's web console, using your web
+browser, at the following URL:
+
+  http://HOST:8091
+
+The Username/Password will be:
+
+  Username: Administrator
+  Password: <your EC2 instance id>
+
+NOTE: Changing the web console's Password is easy.  Please see the
+README.txt and More Information sections below.
+
+Next, please create a "default" bucket on your new server by using the
+following web console screen:
+
+  MANAGE -> Data Buckets -> Create New Data Bucket
+
+In the following pop-up dialog box, please enter in "default" for the
+bucket name and click "Create".  (For now, just accept the other
+default parameters in the dialog box.)
+
+Next, let's generate some synthetic test requests.
+
+SSH onto your EC2 instance, such as by using:
+
+  ssh -i your-ssh-key.pem ec2-user@HOST
+
+In your SSH session, you can generate test requests against the
+default bucket by running:
+
+  /opt/couchbase/bin/memcachetest -l
+
+Next, let's monitor your database performance.
+
+In your web console, navigate to the following screen to see the
+online performance graphs:
+
+  MONITOR -> Data Buckets -> "default"
+
+In the various graphs, there's lots of interesting information to
+drill into.
+
+== Ports and Security Groups
+
+If you are creating your own Security Group, the following TCP ports
+and port ranges should be opened for inbound connections from your web
+application servers and other server nodes (for clustering), via
+Source CIDR / IP filtering or Security Group filtering.  That is,
+these ports should not be opened for general internet access.
+
+* 8091
+* 8092
+* 11209
+* 11210
+* 11211
+* 4369
+* port range: 21100 to 21199
+
+== README.txt
+
+More information about your AMI and its pre-installed software is
+available in following file on your EC2 instance:
+
+  /home/ec2-user/README.txt
+
+== More Information
+
+http://www.couchbase.com
+http://www.couchbase.org/forums
+mailto:support@couchbase.com
+
+Copyright (c) 2012 Couchbase, Inc.
+

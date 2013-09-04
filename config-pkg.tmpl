@@ -1,0 +1,25 @@
+#!/bin/sh -e
+
+if [ ! -d /opt/*base ]; then
+  cd /home/ec2-user
+  rpm -i *base-server-*_x86_64_*.rpm
+  /opt/@@PKG_KIND@@/bin/cbenable_core_dumps.sh /tmp
+  sleep 30
+  /opt/@@PKG_KIND@@/bin/@@CLI_NAME@@ cluster-init -c 127.0.0.1 \
+    --cluster-init-username=Administrator \
+    --cluster-init-password=`curl http://169.254.169.254/latest/meta-data/instance-id`
+  sleep 30
+  # create bucket
+  /opt/couchbase/bin/couchbase-cli bucket-create -c 127.0.0.1:8091 -u Administrator -p `curl http://169.254.169.254/latest/meta-data/instance-id`  --bucket=sync_gateway --bucket-type=couchbase --bucket-ramsize=2048 --bucket-replica=1
+  # install sync_gateway
+  unzip sync_gateway.zip
+  /etc/init.d/@@PKG_KIND@@-server stop
+  mkdir -p /mnt/ebs/db
+  chown @@PKG_KIND@@:@@PKG_KIND@@ /mnt/ebs/db
+  mv /opt/@@PKG_KIND@@/var /mnt/ebs/db
+  ln -s /mnt/ebs/db/var /opt/@@PKG_KIND@@/var
+  chown -h @@PKG_KIND@@:@@PKG_KIND@@ /opt/@@PKG_KIND@@/var
+  /etc/init.d/@@PKG_KIND@@-server start
+  rm -f /var/lib/cloud/data/scripts/config-pkg
+fi
+
