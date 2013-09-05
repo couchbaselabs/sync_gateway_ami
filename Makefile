@@ -101,6 +101,8 @@ instance-prep:
 	mv sync_gateway_1.0-253.zip sync_gateway.zip
 	scp -i ~/.ssh/$(SSH_KEY).pem sync_gateway.zip \
 	  ec2-user@$(INSTANCE_HOST):/home/ec2-user/
+	scp -i ~/.ssh/$(SSH_KEY).pem config.json \
+	  ec2-user@$(INSTANCE_HOST):/home/ec2-user/
 	scp -i ~/.ssh/$(SSH_KEY).pem prep \
       ec2-user@$(INSTANCE_HOST):/home/ec2-user/prep
 	$(SSH_CMD) -t sudo /home/ec2-user/prep
