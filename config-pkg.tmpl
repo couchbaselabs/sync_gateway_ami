@@ -2,7 +2,8 @@
 
 if [ ! -d /opt/*base ]; then
   cd /home/ec2-user
-  rpm -i *base-server-*_x86_64_*.rpm
+  yum -y install pkgconfig
+  rpm -i couchbase-server*.rpm
   /opt/@@PKG_KIND@@/bin/cbenable_core_dumps.sh /tmp
   sleep 30
   /opt/@@PKG_KIND@@/bin/@@CLI_NAME@@ cluster-init -c 127.0.0.1 \
@@ -21,8 +22,8 @@ if [ ! -d /opt/*base ]; then
   /opt/couchbase/bin/couchbase-cli bucket-create -c 127.0.0.1:8091 -u Administrator -p `curl http://169.254.169.254/latest/meta-data/instance-id`  --bucket=sync_gateway --bucket-type=couchbase --bucket-ramsize=2048 --bucket-replica=1
   # install sync_gateway
   sleep 20
-  unzip sync_gateway.zip
-  linux-amd64/sync_gateway config.json &
+  rpm -i sync_gateway.rpm 
+  /opt/couchbase-sync-gateway/bin/sync_gateway config.json &
   rm -f /var/lib/cloud/data/scripts/config-pkg
 fi
 
