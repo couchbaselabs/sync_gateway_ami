@@ -19,15 +19,15 @@ OLD_INSTANCE_ID 	    = i-e67a0883
 SSH_KEY = ronnie-ec2-key
 SSH_CMD = ssh -i ~/.ssh/$(SSH_KEY).pem ec2-user@$(INSTANCE_HOST)
 
-VERSION = 2.1.1
-IMAGE_NAME = sync-gateway-1.0-257
+VERSION = 2.2.0
+IMAGE_NAME = sync-gateway-1.0-beta2
 IMAGE_DESC = pre-installed Sync Gateway & Couchbase Server ${VERSION}, Enterprise Edition, 64bit
 
 PKG_BASE = http://packages.couchbase.com/releases/${VERSION}
-PKG_NAME = couchbase-server-enterprise_x86_64_${VERSION}.rpm
+PKG_NAME = couchbase-server-enterprise_${VERSION}_x86_64.rpm
 PKG_KIND = couchbase
 CLI_NAME = couchbase-cli
-SYNC_GATEWAY_URL = http://cbfs.hq.couchbase.com:8484/builds/sync_gateway_1.0-257.zip
+SYNC_GATEWAY_URL = https://s3.amazonaws.com/packages.couchbase.com/releases/couchbase-sync-gateway/1.0-beta/couchbase-sync-gateway-community_1.0-beta2_x86_64.rpm
 
 SECURITY_GROUP = couchbase
 
@@ -98,8 +98,8 @@ instance-describe:
 
 instance-prep:
 	curl -O $(SYNC_GATEWAY_URL)
-	mv sync_gateway_1.0-257.zip sync_gateway.zip
-	scp -i ~/.ssh/$(SSH_KEY).pem sync_gateway.zip \
+	mv couchbase-sync-gateway-community_1.0-beta2_x86_64.rpm sync_gateway.rpm
+	scp -i ~/.ssh/$(SSH_KEY).pem sync_gateway.rpm \
 	  ec2-user@$(INSTANCE_HOST):/home/ec2-user/
 	scp -i ~/.ssh/$(SSH_KEY).pem config.json \
 	  ec2-user@$(INSTANCE_HOST):/home/ec2-user/
