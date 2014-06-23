@@ -19,14 +19,32 @@ OLD_INSTANCE_ID 	    = i-e67a0883
 SSH_KEY = ronnie-ec2-key
 SSH_CMD = ssh -i ~/.ssh/$(SSH_KEY).pem ec2-user@$(INSTANCE_HOST)
 
-VERSION = 2.5.1
-IMAGE_NAME = sync-gateway-1.0
-IMAGE_DESC = pre-installed Sync Gateway & Couchbase Server ${VERSION}, Enterprise Edition, 64bit
+#couchbase server version
+CB_VERSION = 2.5.1
+CB_Edition = Enterprise
+#lower case edition 
+cb_edition = $(shell tr '[:upper:]' '[:lower:]' <<< $(CB_Edition))
 
-PKG_BASE = http://packages.couchbase.com/releases/${VERSION}
-PKG_NAME = couchbase-server-enterprise_${VERSION}_x86_64.rpm
+#sync-gateway version
+SYNC_Edition = Community
+
+#include couchbase server or not
+CB = 1
+
+ifeq ($(CB),1)
+	IMAGE_NAME = sync-gateway-1.0_couchbase-server
+	IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition} & Couchbase Server ${CB_VERSION}, ${CB_Edition} Edition, 64bit
+else
+	IMAGE_NAME = sync-gateway-1.0
+        IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition} & Couchbase Server ${CB_VERSION}, ${CB_Edition} Edition, 64bit
+endif
+
+PKG_BASE = http://packages.couchbase.com/releases/${CB_VERSION}
+PKG_NAME = couchbase-server-${cb_edition}_${CB_VERSION}_x86_64.rpm
 PKG_KIND = couchbase
 CLI_NAME = couchbase-cli
+
+#update this URL with new sync-gateway version
 SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.0/couchbase-sync-gateway-community_1.0.0_x86_64.rpm
 
 SECURITY_GROUP = couchbase
@@ -108,9 +126,6 @@ instance-prep:
 	$(SSH_CMD) -t sudo /home/ec2-user/prep
 
 instance-prep-pkg:
-	IMAGE_DESC="pre-installed Couchbase Server ${VERSION}, Enterprise Edition, 64bit" \
-    PKG_BASE="http://packages.couchbase.com/releases/${VERSION}" \
-    PKG_NAME="couchbase-server-coummunity_x86_64_${VERSION}.rpm" \
 	$(SSH_CMD) wget -O $(PKG_NAME) $(PKG_BASE)/$(PKG_NAME)
 	sed -e s,@@PKG_NAME@@,$(PKG_NAME),g README.txt.tmpl | \
       sed -e s,@@PKG_KIND@@,$(PKG_KIND),g | \
@@ -146,9 +161,6 @@ list-amis:
     $(EC2_HOME)/bin/ec2-stop-instances ${INSTANCE_ID}
     
 instance-image-create:
-	IMAGE_DESC="pre-installed Couchbase Server ${VERSION}, Enterprise Edition, 64bit" \
-    PKG_BASE="http://packages.couchbase.com/releases/${VERSION}" \
-    PKG_NAME="couchbase-server-enterprise_x86_64_${VERSION}.rpm" \
 	EC2_HOME=$(EC2_HOME) \
     EC2_PRIVATE_KEY=$(EC2_PRIVATE_KEY) \
     EC2_CERT=$(EC2_CERT) \
@@ -159,9 +171,6 @@ instance-image-create:
       $(INSTANCE_ID)
 
 instance-image-recreate:
-	IMAGE_DESC="pre-installed Couchbase Server ${VERSION}, Enterprise Edition, 64bit" \
-    PKG_BASE="http://packages.couchbase.com/releases/${VERSION}" \
-    PKG_NAME="couchbase-server-enterprise_x86_64_${VERSION}.rpm" \
 	EC2_HOME=$(EC2_HOME) \
     EC2_PRIVATE_KEY=$(EC2_PRIVATE_KEY) \
     EC2_CERT=$(EC2_CERT) \
@@ -231,5 +240,4 @@ snapshot-create:
       --description empty-ext3-$(VOLUME_GB)gb > snapshot-describe.out
 
 clean:
-	rm -f *.out
-
+	rm -f *.out \
