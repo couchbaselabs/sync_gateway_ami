@@ -32,11 +32,11 @@ SYNC_Edition = Community
 CB = 1
 
 ifeq ($(CB),1)
-	IMAGE_NAME = sync-gateway-1.0_couchbase-server
+	IMAGE_NAME = sync-gateway-1.0-${SYNC_Edition}_couchbase-server-${CB_Edition}
 	IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition} & Couchbase Server ${CB_VERSION}, ${CB_Edition} Edition, 64bit
 else
-	IMAGE_NAME = sync-gateway-1.0
-        IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition} & Couchbase Server ${CB_VERSION}, ${CB_Edition} Edition, 64bit
+	IMAGE_NAME = sync-gateway-1.0-${SYNC_Edition}
+        IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition}, 64bit
 endif
 
 PKG_BASE = http://packages.couchbase.com/releases/${CB_VERSION}
@@ -45,7 +45,10 @@ PKG_KIND = couchbase
 CLI_NAME = couchbase-cli
 
 #update this URL with new sync-gateway version
-SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.0/couchbase-sync-gateway-community_1.0.0_x86_64.rpm
+SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.0/couchbase-sync-gateway-enterprise_1.0.0_x86_64.rpm
+
+#sync gateway community url   
+#http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.0/couchbase-sync-gateway-community_1.0.0_x86_64.rpm
 
 SECURITY_GROUP = couchbase
 
@@ -116,7 +119,7 @@ instance-describe:
 
 instance-prep:
 	curl -O $(SYNC_GATEWAY_URL)
-	mv couchbase-sync-gateway-community_1.0.0_x86_64.rpm sync_gateway.rpm
+	mv couchbase-sync-gateway-enterprise_1.0.0_x86_64.rpm sync_gateway.rpm
 	scp -i ~/.ssh/$(SSH_KEY).pem sync_gateway.rpm \
 	  ec2-user@$(INSTANCE_HOST):/home/ec2-user/
 	scp -i ~/.ssh/$(SSH_KEY).pem config.json \
@@ -240,4 +243,4 @@ snapshot-create:
       --description empty-ext3-$(VOLUME_GB)gb > snapshot-describe.out
 
 clean:
-	rm -f *.out \
+	rm -f *.out
