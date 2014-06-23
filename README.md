@@ -32,7 +32,11 @@ command...
 Get your ssh key so you can login into the EC2 instances.  These
 usually will live in the ~/.ssh directory on your computer.  For example, mine is at...
 
-    ~/.ssh/steveyen-key2
+    ~/.ssh/steveyen-key2.pem
+
+If you do not have the key yet, using the next step to generate one, and rename it .pem. Make sure the owner can read and write using the key. 
+
+	chmod 600 steveyen-key2.pem
 
 If you don't have an AMI compatible ssh key, run the following command to generate a new one
 
@@ -45,9 +49,16 @@ First, clean up from previous attempts...
     make clean
 
 Then, if you're making an AMI for a version number update, be sure to
-have the right tag.
+have the right tag. The common available tags to configure are
 
-Then, use step 0, which should launch an new EC2 instance.
+	CB_VERSION = <couchbase server version>
+	CB_Edition = <couchbase server edition, enterprise/community>
+	SYNC_Edition = <sync-gateway edition, enterprise/community>
+	CB = <0/1, flag 1 would include CB server, 0 would not>
+	
+Be aware that you need to manually change SYNC_GATEWAY_URL in Makefile and its downloaded file name as the url changes between versions. SYNC_Edition option only updates AMI description.
+
+First, use step 0, which should launch an new EC2 instance.
 
     make SSH_KEY=steveyen-key2 step0
 
@@ -63,8 +74,11 @@ Then, go to the next step...
 
     make SSH_KEY=steveyen-key2 step1
 
-The previous might fail due to SSH issues.  Have patience, wait and
-try again a few time, as the instance requires time to come online.
+The previous might fail due to SSH issues.  Have patience, wait and try again a few time, as the instance requires time to come online.
+
+Also, you could not create more than 1 AMI image at the same time. The script grabs all the ec2 hostname, so leaving more than 1 ec2 alive could cause connection issue.
+
+If you only have 1 ec2 host alive, and you are still seeing the permission issue, try running "instance-describe" cmd again to  create a new "instance-describe.out".
 
 Then, go to the next step, etc...
 
@@ -72,30 +86,29 @@ Then, go to the next step, etc...
     make SSH_KEY=steveyen-key2 step3
     make SSH_KEY=steveyen-key2 step4
 
-By default, couchbase 2.0.0 will be installed. Provide VERSION number to override this option.
+By default, couchbase 2.5.1 and sync gateway 1.0 will be installed. Provide tags to override this option.
 
-    make SSH_KEY=steveyen-key2 VERSION=2.0.0 step2
-    make SSH_KEY=steveyen-key2 step3
-    make SSH_KEY=steveyen-key2 VERSION=2.0.0 step4
+    make CB_VERSION=2.2.0 CB_Edition=Community SYNC_Edition=Community CB=1 SSH_KEY=steveyen-key2 step2
+    make CB_VERSION=2.2.0 CB_Edition=Community SYNC_Edition=Community CB=1 SSH_KEY=steveyen-key2 step3
+    make CB_VERSION=2.2.0 CB_Edition=Community SYNC_Edition=Community CB=1 SSH_KEY=steveyen-key2 step4
 
-NOTE: If you don't want the package pre-installed on the AMI, such as
-to just get an empty-but-ready AMI for QE/testing, then just skip
-step2.
+NOTE: If you don't want the package pre-installed on the AMI, such as to just get an empty-but-ready AMI for QE/testing,  or an AMI only with syn gateway, then just skip step2.
 
-You should now have an AMI that's AWS / ISV Marketplace ready.  But,
-it might take a few minutes for AWS to finish building it (moving it
+	make SYNC_Edition=Enterprise CB=0 SSH_KEY=steveyen-key2 step1
+	make SYNC_Edition=Enterprise CB=0 SSH_KEY=steveyen-key2 step2
+	make SYNC_Edition=Enterprise CB=0 SSH_KEY=steveyen-key2 step3
+
+Go to AMI on AWS dashboard. Search for the AMI image number which you just generated on step4. You should now have an AMI that's AWS / ISV Marketplace ready.  But, it might take a few minutes for AWS to finish building it (moving it
 out of 'pending' state -- have patience).
 
-Finally, for an AMI meant for the AWS / ISV Marketplace, grant
-permission for AWS to access it...
+Finally, for an AMI meant for the AWS / ISV Marketplace, Click Action - Modify image permission 
+grant permission for AWS to access it...
 
     grant access to aws # 6795-9333-3241
 
 # Other Hints:
 
-If you're doing an updated AMI due to a new software release,
-be sure to scrub any README's for changes, etc.
-
+If you're doing an updated AMI due to a new software release, be sure to scrub any README's for changes, etc.
 To make a community edition AMI, use something like...
 
     make IMAGE_DESC="pre-installed Couchbase Server 2.0.0, Community Edition, 64bit" \
