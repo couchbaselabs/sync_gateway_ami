@@ -101,10 +101,21 @@ NOTE: If you don't want the package pre-installed on the AMI, such as to just ge
 Go to AMI on AWS dashboard. Search for the AMI image number which you just generated on step4. You should now have an AMI that's AWS / ISV Marketplace ready.  But, it might take a few minutes for AWS to finish building it (moving it
 out of 'pending' state -- have patience).
 
+# Creating SnapShot
+
 Finally, for an AMI meant for the AWS / ISV Marketplace, Click Action - Modify image permission 
 grant permission for AWS to access it...
 
-    grant access to aws # 6795-9333-3241
+    grant access to aws # 679593333241
+
+Check the box to, Add "create volume" permissions to the following associated snapshots when creating permissions
+Click "Save". You should see the account number listed under "AWS Account Number"
+
+To verify that the snapshot(s) have been correctly shared:
+Click "Snapshots" in the left hand navigation bar
+Select the snapshot(s) associated with the AMI
+Click "Permissions". You should see "aws-marketplace" 
+
 
 # Other Hints:
 
