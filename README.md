@@ -103,17 +103,18 @@ out of 'pending' state -- have patience).
 
 # Creating SnapShot
 
-Finally, for an AMI meant for the AWS / ISV Marketplace, Click Action - Modify image permission 
-grant permission for AWS to access it...
+Finally, for an AMI meant for the AWS / ISV Marketplace <br>
+Click "Action" - "Modify image permission" <br>
+Grant permission for AWS to access it...
 
     grant access to aws # 679593333241
 
-Check the box to, Add "create volume" permissions to the following associated snapshots when creating permissions
+Check the box to, Add "create volume" permissions to the following associated snapshots when creating permissions. <br>
 Click "Save". You should see the account number listed under "AWS Account Number"
 
-To verify that the snapshot(s) have been correctly shared:
-Click "Snapshots" in the left hand navigation bar
-Select the snapshot(s) associated with the AMI
+Verify that the snapshot(s) have been correctly shared: <br>
+Click "Snapshots" in the left hand navigation bar <br>
+Select the snapshot(s) associated with the AMI <br>
 Click "Permissions". You should see "aws-marketplace" 
 
 
