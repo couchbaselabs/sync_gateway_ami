@@ -32,23 +32,26 @@ SYNC_Edition = Community
 CB = 1
 
 ifeq ($(CB),1)
-	IMAGE_NAME = sync-gateway-1.0-${SYNC_Edition}_couchbase-server-${CB_Edition}
+	IMAGE_NAME = sync-gateway-1.0.3-${SYNC_Edition}_couchbase-server-${CB_Edition}
 	IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition} & Couchbase Server ${CB_VERSION}, ${CB_Edition} Edition, 64bit
 else
-	IMAGE_NAME = sync-gateway-1.0-${SYNC_Edition}
+	IMAGE_NAME = sync-gateway-1.0.3-${SYNC_Edition}
         IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition}, 64bit
 endif
 
-PKG_BASE = http://packages.couchbase.com/releases/${CB_VERSION}
-PKG_NAME = couchbase-server-${cb_edition}_${CB_VERSION}_x86_64.rpm
+#PKG_BASE = http://packages.couchbase.com/releases/${CB_VERSION}
+#PKG_NAME = couchbase-server-${cb_edition}_${CB_VERSION}_x86_64.rpm
+PKG_BASE = http://builder.hq.couchbase.com/get
+PKG_NAME = couchbase-server-community_centos6_x86_64_${CB_VERSION}-1444-rel.rpm
+#PKG_NAME = couchbase-server-enterprise_centos6_x86_64_${CB_VERSION}-1209-rel.rpm
 PKG_KIND = couchbase
 CLI_NAME = couchbase-cli
 
 #update this URL with new sync-gateway version
-SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.0/couchbase-sync-gateway-enterprise_1.0.0_x86_64.rpm
+#SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.3/couchbase-sync-gateway-enterprise_1.0.3_x86_64.rpm
 
 #sync gateway community url   
-#http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.0/couchbase-sync-gateway-community_1.0.0_x86_64.rpm
+SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.3/couchbase-sync-gateway-community_1.0.3_x86_64.rpm
 
 SECURITY_GROUP = couchbase
 
@@ -117,9 +120,15 @@ instance-describe:
       $(EC2_HOME)/bin/ec2-describe-instances $(INSTANCE_ID) > instance-describe.out
 	cat instance-describe.out
 
+instance-clean:
+	$(SSH_CMD) yum clean all
+
+instance-update:
+	$(SSH_CMD) -t sudo yum update
+
 instance-prep:
 	curl -O $(SYNC_GATEWAY_URL)
-	mv couchbase-sync-gateway-enterprise_1.0.0_x86_64.rpm sync_gateway.rpm
+	mv couchbase-sync-gateway-community_1.0.3_x86_64.rpm sync_gateway.rpm
 	scp -i ~/.ssh/$(SSH_KEY).pem sync_gateway.rpm \
 	  ec2-user@$(INSTANCE_HOST):/home/ec2-user/
 	scp -i ~/.ssh/$(SSH_KEY).pem config.json \
@@ -127,6 +136,7 @@ instance-prep:
 	scp -i ~/.ssh/$(SSH_KEY).pem prep \
       ec2-user@$(INSTANCE_HOST):/home/ec2-user/prep
 	$(SSH_CMD) -t sudo /home/ec2-user/prep
+	$(SSH_CMD) -t sudo rpm --install /home/ec2-user/sync_gateway.rpm
 
 instance-prep-pkg:
 	$(SSH_CMD) wget -O $(PKG_NAME) $(PKG_BASE)/$(PKG_NAME)
@@ -144,6 +154,7 @@ instance-prep-pkg:
 	$(SSH_CMD) -t sudo mkdir -p /var/lib/cloud/data/scripts
 	$(SSH_CMD) -t sudo cp /home/ec2-user/config-pkg /var/lib/cloud/data/scripts/config-pkg
 	$(SSH_CMD) -t sudo chown root:root /var/lib/cloud/data/scripts/config-pkg
+	$(SSH_CMD) -t sudo rpm --install $(PKG_NAME)
 
 instance-cleanse:
 	$(SSH_CMD) -t sudo rm -f \
