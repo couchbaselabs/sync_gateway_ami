@@ -70,6 +70,13 @@ You'll want to see output lines that look like...
 
     INSTANCE	i-936991f0	ami-7341831a	ec2-107-22-35-176.compute-1.amazonaws.com	ip-10-93-70-157.ec2.internal	running	steveyen-key2	0		m1.xlarge	2011-10-26T22:59:43+0000	us-east-1c	aki-825ea7eb			monitoring-disabled	107.22.35.176	10.93.70.157			ebs					paravirtual	xen		sg-dddbcdb4	default
 
+Note: should update EC2 instance here before preoceeding with further installation. 
+    
+    make SSH_KEY=john-key2 instance-clean
+    make SSH_KEY=john-key2 instance-update
+
+Reboot the instance from AWS UI to get the updated instance
+
 Then, go to the next step...
 
     make SSH_KEY=steveyen-key2 step1
@@ -95,16 +102,28 @@ By default, couchbase 2.5.1 and sync gateway 1.0 will be installed. Provide tags
 NOTE: If you don't want the package pre-installed on the AMI, such as to just get an empty-but-ready AMI for QE/testing,  or an AMI only with syn gateway, then just skip step2.
 
 	make SYNC_Edition=Enterprise CB=0 SSH_KEY=steveyen-key2 step1
-	make SYNC_Edition=Enterprise CB=0 SSH_KEY=steveyen-key2 step2
 	make SYNC_Edition=Enterprise CB=0 SSH_KEY=steveyen-key2 step3
+	make SYNC_Edition=Enterprise CB=0 SSH_KEY=steveyen-key2 step4
 
 Go to AMI on AWS dashboard. Search for the AMI image number which you just generated on step4. You should now have an AMI that's AWS / ISV Marketplace ready.  But, it might take a few minutes for AWS to finish building it (moving it
 out of 'pending' state -- have patience).
 
-Finally, for an AMI meant for the AWS / ISV Marketplace, Click Action - Modify image permission 
-grant permission for AWS to access it...
+# Creating SnapShot
 
-    grant access to aws # 6795-9333-3241
+Finally, for an AMI meant for the AWS / ISV Marketplace <br>
+Click "Action" - "Modify image permission" <br>
+Grant permission for AWS to access it...
+
+    grant access to aws # 679593333241
+
+Check the box to, Add "create volume" permissions to the following associated snapshots when creating permissions. <br>
+Click "Save". You should see the account number listed under "AWS Account Number"
+
+Verify that the snapshot(s) have been correctly shared: <br>
+Click "Snapshots" in the left hand navigation bar <br>
+Select the snapshot(s) associated with the AMI <br>
+Click "Permissions". You should see "aws-marketplace" 
+
 
 # Other Hints:
 
