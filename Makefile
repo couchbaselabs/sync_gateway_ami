@@ -20,8 +20,8 @@ SSH_KEY = ronnie-ec2-key
 SSH_CMD = ssh -i ~/.ssh/$(SSH_KEY).pem ec2-user@$(INSTANCE_HOST)
 
 #couchbase server version
-CB_VERSION = 2.5.1
-CB_Edition = Enterprise
+CB_VERSION = 3.0.1
+CB_Edition = Community
 #lower case edition 
 cb_edition = $(shell tr '[:upper:]' '[:lower:]' <<< $(CB_Edition))
 
@@ -32,18 +32,19 @@ SYNC_Edition = Community
 CB = 1
 
 ifeq ($(CB),1)
-	IMAGE_NAME = sync-gateway-1.0.3-${SYNC_Edition}_couchbase-server-${CB_Edition}
+	IMAGE_NAME = sync-gateway-1.0.3-${SYNC_Edition}_couchbase-server-${CB_Edition}-${CB_VERSION}
 	IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition} & Couchbase Server ${CB_VERSION}, ${CB_Edition} Edition, 64bit
 else
 	IMAGE_NAME = sync-gateway-1.0.3-${SYNC_Edition}
         IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition}, 64bit
 endif
 
-#PKG_BASE = http://packages.couchbase.com/releases/${CB_VERSION}
+PKG_BASE = http://packages.couchbase.com/releases/${CB_VERSION}
 #PKG_NAME = couchbase-server-${cb_edition}_${CB_VERSION}_x86_64.rpm
-PKG_BASE = http://builder.hq.couchbase.com/get
-PKG_NAME = couchbase-server-community_centos6_x86_64_${CB_VERSION}-1444-rel.rpm
-#PKG_NAME = couchbase-server-enterprise_centos6_x86_64_${CB_VERSION}-1209-rel.rpm
+#PKG_BASE = http://builder.hq.couchbase.com/get
+PKG_NAME = couchbase-server-community-${CB_VERSION}-centos6.x86_64.rpm
+#PKG_NAME = couchbase-server-community_centos6_x86_64_${CB_VERSION}-1444-rel.rpm
+#PKG_NAME = couchbase-server-enterprise_centos6_x86_64_${CB_VERSION}-1444-rel.rpm
 PKG_KIND = couchbase
 CLI_NAME = couchbase-cli
 
@@ -64,19 +65,24 @@ step0: \
     instance-launch
 
 step1: \
-    instance-prep
+    instance-describe \
+    instance-clean \
+    instance-update
 
 step2: \
-    instance-prep-pkg
+    instance-prep
 
 step3: \
+    instance-prep-pkg
+
+step4: \
     volume-create \
     volume-attach \
     volume-mkfs \
     snapshot-create \
     volume-mount
 
-step4: \
+step5: \
     instance-cleanse \
     instance-image-create
 
@@ -154,7 +160,6 @@ instance-prep-pkg:
 	$(SSH_CMD) -t sudo mkdir -p /var/lib/cloud/data/scripts
 	$(SSH_CMD) -t sudo cp /home/ec2-user/config-pkg /var/lib/cloud/data/scripts/config-pkg
 	$(SSH_CMD) -t sudo chown root:root /var/lib/cloud/data/scripts/config-pkg
-	$(SSH_CMD) -t sudo rpm --install $(PKG_NAME)
 
 instance-cleanse:
 	$(SSH_CMD) -t sudo rm -f \
@@ -208,6 +213,7 @@ volume-create:
       $(EC2_HOME)/bin/ec2-create-volume \
       --availability-zone $(EC2_ZONE) \
       --size $(VOLUME_GB) > volume-describe.out
+	sleep 20
 
 volume-create-from-snapshot:
 	EC2_HOME=$(EC2_HOME) \
