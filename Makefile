@@ -26,7 +26,7 @@ CB_Edition = Community
 cb_edition = $(shell tr '[:upper:]' '[:lower:]' <<< $(CB_Edition))
 
 #sync-gateway version
-SYNC_Edition = Enterprise
+SYNC_Edition = Community
 
 #include couchbase server or not
 CB = 0
@@ -49,10 +49,10 @@ PKG_KIND = couchbase
 CLI_NAME = couchbase-cli
 
 #update this URL with new sync-gateway version
-SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.3/couchbase-sync-gateway-enterprise_1.0.3_x86_64.rpm
+#SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.3/couchbase-sync-gateway-enterprise_1.0.3_x86_64.rpm
 
 #sync gateway community url   
-#SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.3/couchbase-sync-gateway-community_1.0.3_x86_64.rpm
+SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.3/couchbase-sync-gateway-community_1.0.3_x86_64.rpm
 
 SECURITY_GROUP = couchbase
 
