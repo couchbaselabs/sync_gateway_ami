@@ -77,7 +77,7 @@ Note: should update EC2 instance here before preoceeding with further installati
 
 Reboot the instance from AWS UI to get the updated instance
 
-Then, go to the next step...
+Or, you can use step1 to complete the above steps...
 
     make SSH_KEY=steveyen-key2 step1
 
