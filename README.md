@@ -99,7 +99,9 @@ By default, couchbase 2.5.1 and sync gateway 1.0 will be installed. Provide tags
     make CB_VERSION=2.2.0 CB_Edition=Community SYNC_Edition=Community CB=1 SSH_KEY=steveyen-key2 step3
     make CB_VERSION=2.2.0 CB_Edition=Community SYNC_Edition=Community CB=1 SSH_KEY=steveyen-key2 step4
 
-NOTE: If you don't want the package pre-installed on the AMI, such as to just get an empty-but-ready AMI for QE/testing,  or an AMI only with syn gateway, then just skip step2.
+NOTE: If you don't want the couchbase server package pre-installed on the AMI, such as to just get an empty-but-ready AMI for QE/testing,  or an AMI only with syn gateway, then just skip step2.
+
+skip step4 if you do not want to have extra 80G volume attaached to the AMI
 
 	make SYNC_Edition=Enterprise CB=0 SSH_KEY=steveyen-key2 step1
 	make SYNC_Edition=Enterprise CB=0 SSH_KEY=steveyen-key2 step3
