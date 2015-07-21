@@ -2,14 +2,16 @@
 EC2_HOME        = ./ec2-api-tools-1.4.4.2
 EC2_PRIVATE_KEY = ~/.ec2/couchbase_aws-marketplace/pk-RPGT6DCSVXNK5QWMHAACI3KUHN5ILKOX.pem
 EC2_CERT        = ~/.ec2/couchbase_aws-marketplace/cert-RPGT6DCSVXNK5QWMHAACI3KUHN5ILKOX.pem
-EC2_ZONE        = us-east-1c
+EC2_ZONE        = us-east-1a
 EC2_URL         = https://ec2.us-east-1.amazonaws.com
 
 # The seed AMI is Basic Amazon Linux 64-bit 2011.09
-#AMI_ID          = ami-28670341
-AMI_ID          = ami-7341831a
+#AMI_ID          = ami-7341831a
 
-INSTANCE_TYPE = m1.xlarge
+# hvm based AMI
+AMI_ID          = ami-1ecae776
+
+INSTANCE_TYPE = m3.xlarge
 INSTANCE_HOST = `grep INSTANCE instance-describe.out | grep running | cut -f 4`
 INSTANCE_ID   = `grep INSTANCE instance-describe.out | grep running | cut -f 2`
 
@@ -20,39 +22,37 @@ SSH_KEY = ronnie-ec2-key
 SSH_CMD = ssh -i ~/.ssh/$(SSH_KEY).pem ec2-user@$(INSTANCE_HOST)
 
 #couchbase server version
-CB_VERSION = 3.0.1
-CB_Edition = Community
+CB_VERSION = 2.5.2
+CB_Edition = community
 #lower case edition 
 cb_edition = $(shell tr '[:upper:]' '[:lower:]' <<< $(CB_Edition))
 
 #sync-gateway version
-SYNC_Edition = Community
+SYNC_Edition = community
 
 #include couchbase server or not
 CB = 1
 
 ifeq ($(CB),1)
-	IMAGE_NAME = sync-gateway-1.0.3-${SYNC_Edition}_couchbase-server-${CB_Edition}-${CB_VERSION}
+	IMAGE_NAME = sync-gateway-1.1.0-${SYNC_Edition}_couchbase-server-${CB_Edition}-${CB_VERSION}
 	IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition} & Couchbase Server ${CB_VERSION}, ${CB_Edition} Edition, 64bit
 else
-	IMAGE_NAME = sync-gateway-1.0.3-${SYNC_Edition}
+	IMAGE_NAME = sync-gateway-1.1.0-${SYNC_Edition}
         IMAGE_DESC = pre-installed Sync Gateway ${SYNC_Edition}, 64bit
 endif
-
-PKG_BASE = http://packages.couchbase.com/releases/${CB_VERSION}
+#PKG_BASE = http://packages.couchbase.com/releases/${CB_VERSION}
 #PKG_NAME = couchbase-server-${cb_edition}_${CB_VERSION}_x86_64.rpm
-#PKG_BASE = http://builder.hq.couchbase.com/get
-PKG_NAME = couchbase-server-community-${CB_VERSION}-centos6.x86_64.rpm
-#PKG_NAME = couchbase-server-community_centos6_x86_64_${CB_VERSION}-1444-rel.rpm
-#PKG_NAME = couchbase-server-enterprise_centos6_x86_64_${CB_VERSION}-1444-rel.rpm
+PKG_BASE = http://builder.hq.couchbase.com/get
+#PKG_NAME = couchbase-server-community-${CB_VERSION}-centos6.x86_64.rpm
+PKG_NAME = couchbase-server-community_centos6_x86_64_${CB_VERSION}-1153-rel.rpm
 PKG_KIND = couchbase
 CLI_NAME = couchbase-cli
 
 #update this URL with new sync-gateway version
-#SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.3/couchbase-sync-gateway-enterprise_1.0.3_x86_64.rpm
+#SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.1.0/couchbase-sync-gateway-enterprise_1.1.0-28_x86_64.rpm
 
 #sync gateway community url   
-SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.0.3/couchbase-sync-gateway-community_1.0.3_x86_64.rpm
+SYNC_GATEWAY_URL = http://packages.couchbase.com/releases/couchbase-sync-gateway/1.1.0/couchbase-sync-gateway-community_1.1.0-28_x86_64.rpm
 
 SECURITY_GROUP = couchbase
 
@@ -134,7 +134,7 @@ instance-update:
 
 instance-prep:
 	curl -O $(SYNC_GATEWAY_URL)
-	mv couchbase-sync-gateway-community_1.0.3_x86_64.rpm sync_gateway.rpm
+	mv couchbase-sync-gateway-community_1.1.0-28_x86_64.rpm sync_gateway.rpm
 	scp -i ~/.ssh/$(SSH_KEY).pem sync_gateway.rpm \
 	  ec2-user@$(INSTANCE_HOST):/home/ec2-user/
 	scp -i ~/.ssh/$(SSH_KEY).pem config.json \
